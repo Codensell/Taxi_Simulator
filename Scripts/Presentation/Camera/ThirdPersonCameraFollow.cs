@@ -7,13 +7,13 @@ namespace Game.Presentation.Camera
         [SerializeField] private Transform _target;
 
         [Header("Offset")]
-        [SerializeField] private Vector3 _offset = new Vector3(0f, 4f, -12f);
+        [SerializeField] private Vector3 _offset = new Vector3(0f, 4f, -10f);
 
-        [Header("Follow")]
+        [Header("Smooth")]
         [SerializeField] private float _positionSmoothTime = 0.15f;
-        [SerializeField] private float _rotationSmoothTime = 0.25f;
+        [SerializeField] private float _rotationSmoothTime = 0.2f;
 
-        private Vector3 _velocity;
+        private Vector3 _positionVelocity;
 
         private void LateUpdate()
         {
@@ -33,24 +33,19 @@ namespace Game.Presentation.Camera
             transform.position = Vector3.SmoothDamp(
                 transform.position,
                 desiredPosition,
-                ref _velocity,
+                ref _positionVelocity,
                 _positionSmoothTime
             );
         }
+
         private void FollowRotation()
         {
-            Vector3 flatForward = _target.forward;
-            flatForward.y = 0f;
-
-            if (flatForward.sqrMagnitude < 0.001f)
-                return;
-
-            Quaternion desiredRotation = Quaternion.LookRotation(flatForward);
+            Quaternion desiredRotation = _target.rotation;
 
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 desiredRotation,
-                _rotationSmoothTime * Time.deltaTime * 10f
+                _rotationSmoothTime
             );
         }
     }
