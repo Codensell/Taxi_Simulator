@@ -10,8 +10,8 @@ namespace Game.Presentation.Camera
         [SerializeField] private Vector3 _offset = new Vector3(0f, 4f, -12f);
 
         [Header("Follow")]
-        [SerializeField] private float _positionSmoothTime = 0.18f;
-        [SerializeField] private float _rotationSmoothTime = 0.12f;
+        [SerializeField] private float _positionSmoothTime = 0.15f;
+        [SerializeField] private float _rotationSmoothTime = 0.25f;
 
         private Vector3 _velocity;
 
@@ -37,18 +37,20 @@ namespace Game.Presentation.Camera
                 _positionSmoothTime
             );
         }
-
         private void FollowRotation()
         {
-            Quaternion desiredRotation = Quaternion.LookRotation(
-                _target.forward,
-                Vector3.up
-            );
+            Vector3 flatForward = _target.forward;
+            flatForward.y = 0f;
+
+            if (flatForward.sqrMagnitude < 0.001f)
+                return;
+
+            Quaternion desiredRotation = Quaternion.LookRotation(flatForward);
 
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 desiredRotation,
-                _rotationSmoothTime
+                _rotationSmoothTime * Time.deltaTime * 10f
             );
         }
     }
