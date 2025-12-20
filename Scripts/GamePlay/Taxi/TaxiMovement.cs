@@ -22,10 +22,6 @@ namespace Game.Gameplay.Taxi
         {
             _rigidbody = GetComponent<Rigidbody>();
 
-            _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-            _rigidbody.constraints =
-                RigidbodyConstraints.FreezeRotationX |
-                RigidbodyConstraints.FreezeRotationZ;
         }
 
         private void FixedUpdate()
