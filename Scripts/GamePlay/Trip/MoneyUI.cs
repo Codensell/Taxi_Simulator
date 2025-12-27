@@ -3,42 +3,26 @@ using UnityEngine;
 
 public sealed class MoneyUI : MonoBehaviour
 {
-    [SerializeField] private MoneyWallet wallet;
+    [SerializeField] private GameSession session;
     [SerializeField] private TMP_Text text;
 
     private void Awake()
     {
-        if (wallet == null)
-        {
-            Debug.LogError("[MoneyUI] Wallet is NULL");
-            return;
-        }
-
-        if (text == null)
-        {
-            Debug.LogError("[MoneyUI] Text is NULL");
-            return;
-        }
-
-        text.text = $"$ {wallet.Money}";
-        Debug.Log($"[MoneyUI] Init value: {wallet.Money}");
+        text.text = $"$ {session.Money.Money}";
     }
 
     private void OnEnable()
     {
-        if (wallet != null)
-            wallet.OnMoneyChanged += UpdateText;
+        session.Money.OnMoneyChanged += UpdateText;
     }
 
     private void OnDisable()
     {
-        if (wallet != null)
-            wallet.OnMoneyChanged -= UpdateText;
+        session.Money.OnMoneyChanged -= UpdateText;
     }
 
     private void UpdateText(int value)
     {
-        Debug.Log($"[MoneyUI] UpdateText called: {value}");
         text.text = $"$ {value}";
     }
 }

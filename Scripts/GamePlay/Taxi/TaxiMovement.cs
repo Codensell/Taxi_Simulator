@@ -10,6 +10,7 @@ namespace Game.Gameplay.Taxi
         [Header("Driving")]
         [SerializeField] private float _brakeDeceleration = 12f;
         [SerializeField] private float _minTurnSpeed = 0.1f;
+        private float _currentTurnVelocity;
 
         private Rigidbody _rigidbody;
 
@@ -67,19 +68,35 @@ namespace Game.Gameplay.Taxi
         {
             float speedAbs = Mathf.Abs(_currentSpeed);
             if (speedAbs < _minTurnSpeed)
+            {
+                _currentTurnVelocity = 0f;
                 return;
+            }
 
-            float speedFactor = speedAbs / _stats.MaxSpeed;
+            float speedFactor = Mathf.Clamp01(speedAbs / _stats.MaxSpeed);
+            speedFactor *= speedFactor;
 
-            float turnAmount =
+            float direction = Mathf.Sign(_currentSpeed);
+
+            float targetTurn =
                 _steeringInput *
+                direction *
                 _stats.TurnSpeed *
-                speedFactor *
-                Time.fixedDeltaTime;
+                speedFactor;
 
-            Quaternion turnRotation = Quaternion.Euler(0f, turnAmount, 0f);
+            _currentTurnVelocity = Mathf.Lerp(
+                _currentTurnVelocity,
+                targetTurn,
+                6f * Time.fixedDeltaTime
+            );
+
+            Quaternion turnRotation =
+                Quaternion.Euler(0f, _currentTurnVelocity * Time.fixedDeltaTime, 0f);
+
             _rigidbody.MoveRotation(_rigidbody.rotation * turnRotation);
         }
+
+
     }
 }
 
