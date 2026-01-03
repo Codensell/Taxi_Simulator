@@ -8,7 +8,7 @@ public sealed class MoneyUI : MonoBehaviour
 
     private void Awake()
     {
-        text.text = $"$ {session.Money.Money}";
+        text.text = $" {session.Money.Money}";
     }
 
     private void OnEnable()
@@ -23,6 +23,6 @@ public sealed class MoneyUI : MonoBehaviour
 
     private void UpdateText(int value)
     {
-        text.text = $"$ {value}";
+        text.text = $" {value}";
     }
 }

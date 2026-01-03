@@ -18,12 +18,21 @@ namespace Game.Gameplay.Taxi
         private float _steeringInput;
 
         private float _currentSpeed;
+        [Header("Collision")]
+        [SerializeField] private BoxCollider _boxCollider;
+        [SerializeField, Min(0f)] private float _skinWidth = 0.02f;
+        public float CurrentSpeed => _currentSpeed;
+        public float MaxSpeed => _stats != null ? _stats.MaxSpeed : 0f;
 
+        
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
 
+            if (_boxCollider == null)
+                _boxCollider = GetComponent<BoxCollider>();
         }
+
 
         private void FixedUpdate()
         {
@@ -61,8 +70,43 @@ namespace Game.Gameplay.Taxi
                 _currentSpeed *
                 Time.fixedDeltaTime;
 
+            if (delta.sqrMagnitude < 0.000001f)
+                return;
+
+            Vector3 direction = delta.normalized;
+            float distance = delta.magnitude;
+
+            if (_boxCollider == null)
+            {
+                _rigidbody.MovePosition(_rigidbody.position + delta);
+                return;
+            }
+
+            Vector3 origin = transform.TransformPoint(_boxCollider.center);
+
+            Vector3 halfExtents = Vector3.Scale(_boxCollider.size, transform.lossyScale) * 0.5f;
+            Quaternion orientation = transform.rotation;
+
+            if (Physics.BoxCast(
+                    origin,
+                    halfExtents,
+                    direction,
+                    out RaycastHit hit,
+                    orientation,
+                    distance + _skinWidth,
+                    ~0,
+                    QueryTriggerInteraction.Ignore))
+            {
+                float allowed = Mathf.Max(0f, hit.distance - _skinWidth);
+
+                _rigidbody.MovePosition(_rigidbody.position + direction * allowed);
+                _currentSpeed = 0f;
+                return;
+            }
+
             _rigidbody.MovePosition(_rigidbody.position + delta);
         }
+
 
         private void Turn()
         {
